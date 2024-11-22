@@ -9,7 +9,6 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/:category",
-    name: "index",
     component: IndexPage,
   },
 ];

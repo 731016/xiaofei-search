@@ -395,7 +395,407 @@ const onTabChange = (activeKey: string) => {
 
 ![image-20241120222655497](https://note-1259190304.cos.ap-chengdu.myqcloud.com/noteimage-20241120222655497.png)
 
+如果刷新，分类会丢失，没有保存分类数据
 
+```vue
+<script setup lang="ts">
+import { ref, watchEffect } from "vue";
+import { useRoute, useRouter } from "vue-router";
+
+const router = useRouter();
+const route = useRoute();
+/**
+ * 当前激活tab
+ */
+const activeKey = route.params.category;
+
+/**
+ * 页面初始化查询参数
+ */
+const initSearchParams = {
+  text: "",
+  pageNum: 1,
+  pageSize: 10,
+};
+
+/**
+ * url查询关键字
+ */
+const searchParams = ref(initSearchParams);
+
+/**
+ * 监听url改变
+ * 更新查询框参数
+ */
+watchEffect(() => {
+  searchParams.value = {
+    ...initSearchParams,
+    text: route.query.text,
+  } as any;
+});
+</script>
+```
+
+
+
+## 8.axios请求接入
+
+[Axios中文文档 | Axios中文网](https://www.axios-http.cn/)
+
+全局请求配置`ReqAxios.ts`
+
+```ts
+import axios from "axios";
+
+const reqAxios = axios.create({
+  baseURL: "http://localhost:8101/api",
+  timeout: 10000,
+  headers: {},
+});
+
+// 请求拦截
+reqAxios.interceptors.request.use(
+  (config) => {
+    // let token = localStorage.getItem("token") || "";
+    // config.headers["Authorization"] = token;
+    return config;
+  },
+  (err) => {
+    Promise.reject(err);
+  }
+);
+
+// 添加响应拦截器
+reqAxios.interceptors.response.use(
+  function (response) {
+    // 2xx 范围内的状态码都会触发该函数。
+    // 对响应数据做点什么
+    const data = response.data;
+    if (data.code === 0) {
+      return data.data;
+    }
+    return data;
+  },
+  function (error) {
+    // 超出 2xx 范围的状态码都会触发该函数。
+    // 对响应错误做点什么
+    if (error && error.response) {
+      error.message = "系统错误" + error.response.status;
+    } else {
+      error.message = "连接服务器失败!";
+    }
+    return Promise.reject(error);
+  }
+);
+/**
+ * 使用es6的export default导出了一个函数，导出的函数代替axios去帮我们请求数据，
+ * 函数的参数及返回值如下：
+ * @param {String} method  请求的方法：get、post、delete、put
+ * @param {String} url     请求的url:
+ * @param {Object} data    请求的参数
+ * @returns {Promise}     返回一个promise对象，其实就相当于axios请求数据的返回值
+ */
+export default function (method: string, url: string, data: any) {
+  method = method.toLowerCase();
+  if (method == "post") {
+    return reqAxios.post(url, data);
+  } else if (method == "get") {
+    return reqAxios.get(url, { params: data });
+  } else {
+    console.error("未知的method" + method);
+    return false;
+  }
+}
+```
+
+请求方法`Search.ts`
+
+```ts
+import ReqAxios from "@/plugins/ReqAxios";
+
+/**
+ * 分页获取列表（封装类）
+ * @param params
+ */
+export const listPostVOByPage = (params: any) =>
+  ReqAxios("post", "/post/list/page/vo", params);
+```
+
+请求代码
+
+```ts
+/**
+ * 查询结果
+ */
+const searchResultList = ref([]);
+
+/**
+ * 查询
+ * @param value
+ */
+const onSearch = (value: string) => {
+  router.push(searchParams.value);
+  listPostVOByPage({})
+    .then((data) => {
+      console.log(data.records);
+      searchResultList.value = data.records;
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+};
+```
+
+### 展示数据页面优化
+
+去掉app.vue初始样式
+
+```vue
+<style>
+#app {
+  padding: 20px;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+    ...
+```
+
+
+
+帖子页面
+
+```vue
+<template>
+  <a-list item-layout="horizontal" :data-source="props.postList">
+    <template #renderItem="{ item }">
+      <a-list-item>
+        <a-list-item-meta :description="item.content">
+          <template #title>
+            <a href="https://www.antdv.com/">{{ item.title }}</a>
+          </template>
+          <template #avatar>
+            <a-avatar src="https://joeschmoe.io/api/v1/random" />
+          </template>
+        </a-list-item-meta>
+      </a-list-item>
+    </template>
+  </a-list>
+</template>
+
+<script setup lang="ts">
+import { withDefaults, defineProps } from "vue";
+
+interface Props {
+  postList: any[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  postList: () => [],
+});
+</script>
+
+<style scoped></style>
+```
+
+> 1. `import { withDefaults, defineProps } from "vue";`：从 Vue 库中导入了 `withDefaults` 和 `defineProps` 函数。
+> 2. `interface Props { postList: any[]; }`：定义了一个 TypeScript 接口 `Props`，它包含一个属性 `postList`，这是一个任意类型的数组。
+> 3. `const props = withDefaults(defineProps<Props>(), { postList: () => [] });`：这里首先使用 `defineProps` 函数定义了组件的 props，然后使用 `withDefaults` 函数为这些 props 提供默认值。如果父组件没有传递 `postList` 属性，那么它将默认为一个空数组。
+
+图片页面
+
+```vue
+<template>
+  <a-list item-layout="horizontal" :data-source="props.imageList">
+    <template #renderItem="{ item }">
+      <a-list-item>
+        <a-image :width="200" :src="item.userAvatar" />
+      </a-list-item>
+    </template>
+  </a-list>
+</template>
+
+<script setup lang="ts">
+import { withDefaults, defineProps } from "vue";
+
+interface Props {
+  imageList: any[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  imageList: () => [],
+});
+</script>
+
+<style scoped></style>
+```
+
+用户列表
+
+```vue
+<template>
+  <a-list item-layout="horizontal" :data-source="props.userList">
+    <template #renderItem="{ item }">
+      <a-list-item>
+        <a-card hoverable style="width: 240px" :data-source="props.userList">
+          <template #cover>
+            <img alt="example" :src="item.userAvatar" />
+          </template>
+          <a-card-meta :title="item.userName">
+            <template #description>{{ item.userProfile }}</template>
+          </a-card-meta>
+        </a-card>
+      </a-list-item>
+    </template>
+  </a-list>
+</template>
+
+<script setup lang="ts">
+import { withDefaults, defineProps } from "vue";
+
+interface Props {
+  userList: any[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  userList: () => [],
+});
+</script>
+
+<style scoped></style>
+```
+
+主页
+
+```vue
+<template>
+  <div class="index-page">
+    <a-input-search
+      v-model:value="searchParams.text"
+      placeholder="input search text"
+      enter-button="Search"
+      size="large"
+      @search="onSearch"
+    />
+    <MyDivider />
+    <a-tabs v-model:activeKey="activeKey" @change="onTabChange">
+      <a-tab-pane key="post" tab="帖子">
+        <PostList :postList="searchResultPostList" />
+      </a-tab-pane>
+      <a-tab-pane key="image" tab="图片">
+        <ImageList :imageList="searchResultImageList" />
+      </a-tab-pane>
+      <a-tab-pane key="user" tab="用户">
+        <UserList :userList="searchResultUserList" />
+      </a-tab-pane>
+    </a-tabs>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { onMounted, ref, watchEffect } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { listPostVOByPage, listUserVOByPage } from "@/request/Search";
+import PostList from "@/components/PostList.vue";
+import ImageList from "@/components/ImageList.vue";
+import UserList from "@/components/UserList.vue";
+
+const router = useRouter();
+const route = useRoute();
+/**
+ * 当前激活tab
+ */
+let activeTabKey = route.params.category;
+
+/**
+ * 页面初始化查询参数
+ */
+const initSearchParams = {
+  text: "",
+  current: 1,
+  pageSize: 10,
+};
+
+/**
+ * url查询关键字
+ */
+const searchParams = ref(initSearchParams);
+
+/**
+ * 监听url改变
+ * 更新查询框参数
+ */
+watchEffect(() => {
+  searchParams.value = {
+    ...initSearchParams,
+    text: route.query.text,
+  } as any;
+});
+
+/**
+ * 查询结果
+ */
+const searchResultPostList = ref([]);
+const searchResultImageList = ref([]);
+const searchResultUserList = ref([]);
+
+/**
+ * 查询
+ * @param value
+ */
+const onSearch = (value: string) => {
+  router.push({
+    query: searchParams.value,
+  });
+  listPostVOByPage({})
+    .then((data: { records: never[] }) => {
+      console.log(data.records);
+      searchResultPostList.value = data.records;
+    })
+    .catch((error: any) => {
+      console.error(error);
+    });
+  listUserVOByPage({})
+    .then((data) => {
+      console.log(data.records);
+      searchResultUserList.value = data.records;
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  listUserVOByPage({})
+    .then((data) => {
+      console.log(data.records);
+      searchResultImageList.value = data.records;
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  console.log(activeTabKey);
+  // if ("post" === activeTabKey) {
+  // }
+  // if ("user" === activeTabKey) {
+  // }
+  // if ("image" === activeTabKey) {
+  // }
+};
+
+/**
+ * tab切换
+ * @param activeKey
+ */
+const onTabChange = (activeKey: string) => {
+  router.push({
+    path: `/${activeKey}`,
+    query: searchParams.value,
+  });
+  activeTabKey = activeKey;
+};
+
+onMounted(() => {
+  // onTabChange("post");
+});
+</script>
+```
 
 
 
