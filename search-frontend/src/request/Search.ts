@@ -13,3 +13,10 @@ export const listPostVOByPage = (params: any) =>
  */
 export const listUserVOByPage = (params: any) =>
   ReqAxios("post", "/user/list/page/vo", params);
+
+/**
+ * 分页获取图片
+ * @param params
+ */
+export const listImageByPage = (params: any) =>
+  ReqAxios("post", "/image/list/page/vo", params);

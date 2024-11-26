@@ -2,7 +2,7 @@
   <a-list item-layout="horizontal" :data-source="props.userList">
     <template #renderItem="{ item }">
       <a-list-item>
-        <a-card hoverable style="width: 240px" :data-source="props.userList">
+        <a-card hoverable style="width: 240px">
           <template #cover>
             <img alt="example" :src="item.userAvatar || defaultImage" />
           </template>

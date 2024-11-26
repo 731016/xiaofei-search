@@ -1,8 +1,8 @@
 <template>
   <div class="index-page">
     <a-input-search
-      v-model:value="searchParams.text"
-      placeholder="input search text"
+      v-model:value="searchParams.searchText"
+      placeholder="input search searchText"
       enter-button="Search"
       size="large"
       @search="onSearch"
@@ -25,7 +25,11 @@
 <script setup lang="ts">
 import { onMounted, ref, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { listPostVOByPage, listUserVOByPage } from "@/request/Search";
+import {
+  listImageByPage,
+  listPostVOByPage,
+  listUserVOByPage,
+} from "@/request/Search";
 import PostList from "@/components/PostList.vue";
 import ImageList from "@/components/ImageList.vue";
 import UserList from "@/components/UserList.vue";
@@ -41,7 +45,7 @@ let activeTabKey = route.params.category;
  * 页面初始化查询参数
  */
 const initSearchParams = {
-  text: "",
+  searchText: "",
   current: 1,
   pageSize: 10,
 };
@@ -58,7 +62,7 @@ const searchParams = ref(initSearchParams);
 watchEffect(() => {
   searchParams.value = {
     ...initSearchParams,
-    text: route.query.text,
+    searchText: route.query.searchText,
   } as any;
 });
 
@@ -77,7 +81,17 @@ const onSearch = (value: string) => {
   router.push({
     query: searchParams.value,
   });
-  listPostVOByPage({})
+  searchAll(activeTabKey);
+  // if ("post" === activeTabKey) {
+  // }
+  // if ("user" === activeTabKey) {
+  // }
+  // if ("image" === activeTabKey) {
+  // }
+};
+
+const searchAll = (activeTabKey: string) => {
+  listPostVOByPage(searchParams.value)
     .then((data: { records: never[] }) => {
       console.log(data.records);
       searchResultPostList.value = data.records;
@@ -85,7 +99,7 @@ const onSearch = (value: string) => {
     .catch((error: any) => {
       console.error(error);
     });
-  listUserVOByPage({})
+  listUserVOByPage(searchParams.value)
     .then((data) => {
       console.log(data.records);
       searchResultUserList.value = data.records;
@@ -93,7 +107,7 @@ const onSearch = (value: string) => {
     .catch((error) => {
       console.error(error);
     });
-  listUserVOByPage({})
+  listImageByPage(searchParams.value)
     .then((data) => {
       console.log(data.records);
       searchResultImageList.value = data.records;
@@ -101,13 +115,6 @@ const onSearch = (value: string) => {
     .catch((error) => {
       console.error(error);
     });
-  console.log(activeTabKey);
-  // if ("post" === activeTabKey) {
-  // }
-  // if ("user" === activeTabKey) {
-  // }
-  // if ("image" === activeTabKey) {
-  // }
 };
 
 /**

@@ -1,8 +1,17 @@
 <template>
-  <a-list item-layout="horizontal" :data-source="props.imageList">
+  <a-list
+    item-layout="horizontal"
+    :grid="{ gutter: 16, column: 5 }"
+    :data-source="props.imageList"
+  >
     <template #renderItem="{ item }">
       <a-list-item>
-        <a-image :width="200" :src="item.userAvatar" />
+        <a-card hoverable>
+          <template #cover>
+            <a-image :src="item.url" :alt="item.title" />
+          </template>
+          <a-card :title="item.title"></a-card>
+        </a-card>
       </a-list-item>
     </template>
   </a-list>
