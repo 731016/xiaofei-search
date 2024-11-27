@@ -2,6 +2,7 @@ package com.xiaofei.site.search.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xiaofei.site.search.constant.CommonConstant;
 import com.xiaofei.site.search.constant.UserConstant;
@@ -11,6 +12,7 @@ import com.xiaofei.site.search.model.dto.user.UserQueryRequest;
 import com.xiaofei.site.search.model.entity.User;
 import com.xiaofei.site.search.model.enums.UserRoleEnum;
 import com.xiaofei.site.search.model.vo.LoginUserVO;
+import com.xiaofei.site.search.model.vo.PostVO;
 import com.xiaofei.site.search.model.vo.UserVO;
 import com.xiaofei.site.search.service.UserService;
 import com.xiaofei.site.search.utils.SqlUtils;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
+
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import org.apache.commons.lang3.StringUtils;
@@ -268,5 +271,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
         return queryWrapper;
+    }
+
+    @Override
+    public Page<UserVO> listUserVoPage(UserQueryRequest userQueryRequest) {
+        int current = userQueryRequest.getCurrent();
+        int pageSize = userQueryRequest.getPageSize();
+        Page<User> userPage = this.page(new Page<>(current, pageSize),
+                this.getQueryWrapper(userQueryRequest));
+        List<UserVO> userVOList = this.getUserVO(userPage.getRecords());
+        Page<UserVO> userVoPage = new Page<>(current, pageSize);
+        userVoPage.setRecords(userVOList);
+        return userVoPage;
     }
 }

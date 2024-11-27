@@ -1,10 +1,12 @@
 package com.xiaofei.site.search.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xiaofei.site.search.model.dto.user.UserQueryRequest;
 import com.xiaofei.site.search.model.entity.User;
 import com.xiaofei.site.search.model.vo.LoginUserVO;
+import com.xiaofei.site.search.model.vo.PostVO;
 import com.xiaofei.site.search.model.vo.UserVO;
 
 import java.util.List;
@@ -118,5 +120,12 @@ public interface UserService extends IService<User> {
      * @return
      */
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
+
+    /**
+     * 分页查询用户
+     * @param userQueryRequest
+     * @return
+     */
+    Page<UserVO> listUserVoPage(UserQueryRequest userQueryRequest);
 
 }

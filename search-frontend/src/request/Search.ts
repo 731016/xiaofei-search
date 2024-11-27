@@ -20,3 +20,10 @@ export const listUserVOByPage = (params: any) =>
  */
 export const listImageByPage = (params: any) =>
   ReqAxios("post", "/image/list/page/vo", params);
+
+/**
+ * 聚合查询
+ * @param params
+ */
+export const searchAll = (params: any) =>
+  ReqAxios("post", "/search/all", params);

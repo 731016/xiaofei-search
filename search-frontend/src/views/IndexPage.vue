@@ -29,6 +29,7 @@ import {
   listImageByPage,
   listPostVOByPage,
   listUserVOByPage,
+  searchAll,
 } from "@/request/Search";
 import PostList from "@/components/PostList.vue";
 import ImageList from "@/components/ImageList.vue";
@@ -81,7 +82,7 @@ const onSearch = (value: string) => {
   router.push({
     query: searchParams.value,
   });
-  searchAll(activeTabKey);
+  loadAll();
   // if ("post" === activeTabKey) {
   // }
   // if ("user" === activeTabKey) {
@@ -90,7 +91,7 @@ const onSearch = (value: string) => {
   // }
 };
 
-const searchAll = (activeTabKey: string) => {
+/*const searchAll = (activeTabKey: string) => {
   listPostVOByPage(searchParams.value)
     .then((data: { records: never[] }) => {
       console.log(data.records);
@@ -99,7 +100,10 @@ const searchAll = (activeTabKey: string) => {
     .catch((error: any) => {
       console.error(error);
     });
-  listUserVOByPage(searchParams.value)
+  listUserVOByPage({
+    ...searchParams.value,
+    userName: searchParams.value.searchText,
+  })
     .then((data) => {
       console.log(data.records);
       searchResultUserList.value = data.records;
@@ -111,6 +115,19 @@ const searchAll = (activeTabKey: string) => {
     .then((data) => {
       console.log(data.records);
       searchResultImageList.value = data.records;
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+};*/
+
+const loadAll = () => {
+  searchAll(searchParams.value)
+    .then((data) => {
+      console.log(data);
+      searchResultPostList.value = data.postList;
+      searchResultImageList.value = data.imageList;
+      searchResultUserList.value = data.userList;
     })
     .catch((error) => {
       console.error(error);

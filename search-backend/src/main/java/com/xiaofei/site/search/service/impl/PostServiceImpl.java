@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+
 import lombok.extern.slf4j.Slf4j;
 import cn.hutool.core.collection.CollUtil;
 import org.apache.commons.lang3.ObjectUtils;
@@ -303,6 +304,16 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
             return postVO;
         }).collect(Collectors.toList());
         postVOPage.setRecords(postVOList);
+        return postVOPage;
+    }
+
+    @Override
+    public Page<PostVO> listPostVoPage(PostQueryRequest postQueryRequest, HttpServletRequest httpServletRequest) {
+        int current = postQueryRequest.getCurrent();
+        int pageSize = postQueryRequest.getPageSize();
+        Page<Post> postPage = this.page(new Page<>(current, pageSize),
+                this.getQueryWrapper(postQueryRequest));
+        Page<PostVO> postVOPage = this.getPostVOPage(postPage, httpServletRequest);
         return postVOPage;
     }
 
