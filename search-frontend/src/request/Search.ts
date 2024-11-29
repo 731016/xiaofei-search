@@ -1,4 +1,5 @@
-import ReqAxios from "@/plugins/ReqAxios";
+// import ReqAxios from "@/plugins/ReqAxios";
+import ReqAxios from "../plugins/ReqAxios";
 
 /**
  * 分页获取列表（封装类）

@@ -1,14 +1,14 @@
 <template>
   <div class="index-page">
     <a-input-search
-      v-model:value="searchParams.searchText"
+      v-model:value="searchText"
       placeholder="input search searchText"
       enter-button="Search"
       size="large"
       @search="onSearch"
     />
     <MyDivider />
-    <a-tabs v-model:activeKey="activeKey" @change="onTabChange">
+    <a-tabs v-model:activeKey="searchType" @change="onTabChange">
       <a-tab-pane key="post" tab="帖子">
         <PostList :postList="searchResultPostList" />
       </a-tab-pane>
@@ -34,19 +34,22 @@ import {
 import PostList from "@/components/PostList.vue";
 import ImageList from "@/components/ImageList.vue";
 import UserList from "@/components/UserList.vue";
+import { message } from "ant-design-vue";
 
 const router = useRouter();
 const route = useRoute();
-/**
- * 当前激活tab
- */
-let activeTabKey = route.params.category;
+
+//初始值
+const searchType = route.params.category;
+//最新的查询内容
+const searchText = ref(route.query.searchText || "");
 
 /**
  * 页面初始化查询参数
  */
 const initSearchParams = {
   searchText: "",
+  searchType: searchType,
   current: 1,
   pageSize: 10,
 };
@@ -55,17 +58,6 @@ const initSearchParams = {
  * url查询关键字
  */
 const searchParams = ref(initSearchParams);
-
-/**
- * 监听url改变
- * 更新查询框参数
- */
-watchEffect(() => {
-  searchParams.value = {
-    ...initSearchParams,
-    searchText: route.query.searchText,
-  } as any;
-});
 
 /**
  * 查询结果
@@ -80,58 +72,11 @@ const searchResultUserList = ref([]);
  */
 const onSearch = (value: string) => {
   router.push({
-    query: searchParams.value,
+    query: {
+      ...searchParams.value,
+      searchText: value,
+    },
   });
-  loadAll();
-  // if ("post" === activeTabKey) {
-  // }
-  // if ("user" === activeTabKey) {
-  // }
-  // if ("image" === activeTabKey) {
-  // }
-};
-
-/*const searchAll = (activeTabKey: string) => {
-  listPostVOByPage(searchParams.value)
-    .then((data: { records: never[] }) => {
-      console.log(data.records);
-      searchResultPostList.value = data.records;
-    })
-    .catch((error: any) => {
-      console.error(error);
-    });
-  listUserVOByPage({
-    ...searchParams.value,
-    userName: searchParams.value.searchText,
-  })
-    .then((data) => {
-      console.log(data.records);
-      searchResultUserList.value = data.records;
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-  listImageByPage(searchParams.value)
-    .then((data) => {
-      console.log(data.records);
-      searchResultImageList.value = data.records;
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-};*/
-
-const loadAll = () => {
-  searchAll(searchParams.value)
-    .then((data) => {
-      console.log(data);
-      searchResultPostList.value = data.postList;
-      searchResultImageList.value = data.imageList;
-      searchResultUserList.value = data.userList;
-    })
-    .catch((error) => {
-      console.error(error);
-    });
 };
 
 /**
@@ -141,12 +86,62 @@ const loadAll = () => {
 const onTabChange = (activeKey: string) => {
   router.push({
     path: `/${activeKey}`,
-    query: searchParams.value,
+    query: {
+      ...searchParams.value,
+      searchType: activeKey,
+    },
   });
-  activeTabKey = activeKey;
 };
 
-onMounted(() => {
-  // onTabChange("post");
+/**
+ * 加载数据
+ */
+const loadData = () => {
+  searchAll(searchParams.value)
+    .then((data) => {
+      console.log(data);
+      searchResultPostList.value = data.postList || [];
+      searchResultImageList.value = data.imageList || [];
+      searchResultUserList.value = data.userList || [];
+    })
+    .catch((error) => {
+      console.error(error);
+      message.error(error);
+    });
+};
+
+/**
+ * 分类查询加载数据
+ */
+const loadDataByType = () => {
+  let searchType = searchParams.value.searchType;
+  searchAll(searchParams.value)
+    .then((data) => {
+      console.log(data);
+      if (searchType === "post") {
+        searchResultPostList.value = data.dataList || [];
+      } else if (searchType === "user") {
+        searchResultUserList.value = data.dataList || [];
+      } else if (searchType === "picture") {
+        searchResultImageList.value = data.dataList || [];
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      message.error(error);
+    });
+};
+
+/**
+ * 监听url改变
+ * 更新查询框参数
+ */
+watchEffect(() => {
+  searchParams.value = {
+    ...initSearchParams,
+    searchText: route.query.searchText,
+    searchType: route.params.category,
+  } as any;
+  loadDataByType();
 });
 </script>

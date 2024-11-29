@@ -1,4 +1,5 @@
 import axios from "axios";
+import { message } from "ant-design-vue";
 
 const reqAxios = axios.create({
   baseURL: "http://localhost:8101/api",
@@ -26,6 +27,9 @@ reqAxios.interceptors.response.use(
     const data = response.data;
     if (data.code === 0) {
       return data.data;
+    } else {
+      console.error(data.message);
+      message.error(data.message);
     }
     return data;
   },
