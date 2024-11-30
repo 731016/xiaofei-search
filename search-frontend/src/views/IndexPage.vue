@@ -98,13 +98,13 @@ const onTabChange = (activeKey: string) => {
  */
 const loadData = () => {
   searchAll(searchParams.value)
-    .then((data) => {
+    .then((data: any) => {
       console.log(data);
       searchResultPostList.value = data.postList || [];
       searchResultImageList.value = data.imageList || [];
       searchResultUserList.value = data.userList || [];
     })
-    .catch((error) => {
+    .catch((error: any) => {
       console.error(error);
       message.error(error);
     });
@@ -116,17 +116,17 @@ const loadData = () => {
 const loadDataByType = () => {
   let searchType = searchParams.value.searchType;
   searchAll(searchParams.value)
-    .then((data) => {
+    .then((data: any) => {
       console.log(data);
       if (searchType === "post") {
         searchResultPostList.value = data.dataList || [];
       } else if (searchType === "user") {
         searchResultUserList.value = data.dataList || [];
-      } else if (searchType === "picture") {
+      } else if (searchType === "image") {
         searchResultImageList.value = data.dataList || [];
       }
     })
-    .catch((error) => {
+    .catch((error: any) => {
       console.error(error);
       message.error(error);
     });
