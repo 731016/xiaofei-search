@@ -2291,11 +2291,102 @@ https://www.elastic.co/cn/downloads/elasticsearch
 
 ### 下载
 
-elasticsearch:https://www.elastic.co/guide/en/elasticsearch/reference/7.17/zip-windows.html
+这里使用7.17版本
 
-logstash:https://www.elastic.co/guide/en/logstash/7.17/setup-logstash.html
+### elasticsearch
 
-kibana:https://www.elastic.co/guide/en/kibana/current/install.html
+https://www.elastic.co/guide/en/elasticsearch/reference/7.17/zip-windows.html
+
+### logstash
+
+Logstash 是一个开源的数据采集引擎，具有实时管道传输功能。Logstash 能够将来自单独数据源的数据动态集中到一起，对这些数据加以标准化并传输到您所选的地方。
+
+https://www.elastic.co/guide/en/logstash/7.17/setup-logstash.html
+
+### kibana
+
+搜索、监控、保护、分析、管理数据
+
+https://www.elastic.co/guide/en/kibana/7.17/install.html
+
+### 启动
+
+**elasticsearch**
+
+运行bin/elasticsearch.bat
+
+![image-20241201224752471](https://note-1259190304.cos.ap-chengdu.myqcloud.com/noteimage-20241201224752471.png)
+
+
+
+**kibana**
+
+运行bin/kibana.bat
+
+访问：http://localhost:5601
+
+![image-20241201224813766](https://note-1259190304.cos.ap-chengdu.myqcloud.com/noteimage-20241201224813766.png)
+
+
+
+**logstash**
+
+运行bin/logstash.bat
+
+![image-20241201224935076](https://note-1259190304.cos.ap-chengdu.myqcloud.com/noteimage-20241201224935076.png)
+
+如果出现上面这种闪退或报错，在bin目录下命令行执行
+
+```cmd
+logstash -f ../config/logstash-sample.conf
+```
+
+`conf`目录下的配置文件`logstash-sample.conf`
+
+```
+# Sample Logstash configuration for creating a simple
+# Beats -> Logstash -> Elasticsearch pipeline.
+
+input {
+  beats {
+    port => 5044
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["http://localhost:9200"]
+    index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
+    #user => "elastic"
+    #password => "changeme"
+  }
+}
+```
+
+![image-20241201224834216](https://note-1259190304.cos.ap-chengdu.myqcloud.com/noteimage-20241201224834216.png)
+
+
+
+### 使用
+
+
+
+#### 首次进入
+
+![image-20241201225424395](https://note-1259190304.cos.ap-chengdu.myqcloud.com/noteimage-20241201225424395.png)
+
+#### 开发者工具
+
+![image-20241201225914240](https://note-1259190304.cos.ap-chengdu.myqcloud.com/noteimage-20241201225914240.png)
+
+![image-20241201225928112](https://note-1259190304.cos.ap-chengdu.myqcloud.com/noteimage-20241201225928112.png)
+
+
+
+### 启动端口
+
+9200：提供api接口
+9300：集群内部通信使用
 
 ### 索引
 
@@ -2325,13 +2416,6 @@ kibana:https://www.elastic.co/guide/en/kibana/current/install.html
 搜索"我是小猫"
 
 根据[倒排索引表]找到对应的文章1,2
-
-
-
-### 启动端口
-
-9200：提供api接口
-9300：集群内部通信使用
 
 
 
@@ -2535,6 +2619,8 @@ PUT /my-index-000001
 
 ![image-20241130234806356](https://note-1259190304.cos.ap-chengdu.myqcloud.com/noteimage-20241130234806356.png)
 
+
+
 ### 分词器
 
 #### 内置分词器
@@ -2607,13 +2693,35 @@ POST _analyze
 
 https://github.com/medcl/elasticsearch-analysis-ik
 
-issue:下载相近的版本，解压后修改plugin-descriptor.properties文件里面的elasticsearch.version就可以
+<img src="https://note-1259190304.cos.ap-chengdu.myqcloud.com/noteimage-20241201215951118.png" alt="image-20241201215951118" style="zoom: 80%;" />
+
+
+
+##### 安装
+
+###### 方式1
+
+远程安装：bin/elasticsearch-plugin install https://get.infini.cloud/elasticsearch/analysis-ik/7.17.12
+
+
+
+###### 方式2
+
+下载解压包，本地安装：
+
+在es安装目录新建`plugins/IK`目录，把插件包解压到该目录下，使用命令行重启es，防止报错闪退
+
+如果没有对应版本下载相近的版本，解压后修改plugin-descriptor.properties文件里面的elasticsearch.version保持版本号一致就可以
+
+![image-20241201220554818](https://note-1259190304.cos.ap-chengdu.myqcloud.com/noteimage-20241201220554818.png)
+
+
 
 
 
 **ik_smart**
 
-尽可能取合适的词
+智能分词，尽可能取合适的词
 
 ```json
 POST /_analyze?pretty
@@ -2635,19 +2743,27 @@ POST /_analyze?pretty
 }
 ```
 
-
-
 ### 打分机制
 
 https://www.elastic.co/guide/en/elasticsearch/guide/master/controlling-relevance.html
 
 
 
-#### 使用ES实现搜索接口
+有3条内容：
+
+1. 小猪猪
+2. 男朋友是大猪猪
+3. 我是臭猪猪
+
+用户搜索：
+
+1.猪猪：会匹配到第1条，匹配关键词，更短
 
 
 
-##### ES mapping
+## 12.使用ES实现搜索接口
+
+
 
 es中尽量存放需要搜索的字段
 
@@ -2665,7 +2781,13 @@ search_analyzer（查询时生效的分词器）：用 ik_smart，更偏向于�
 
 
 
-##### CRUD
+
+
+### 
+
+**CRUD**
+
+
 
 (1)继承ElasticsearchRepository，提供简单的crud
 
@@ -2838,7 +2960,7 @@ POST my-index-000001/_search
 
 
 
-## 数据同步
+## 13.数据同步
 
 定时任务，比如 1 分钟 1 次，找到 MySQL 中过去几分钟内（至少是定时周期的 2 倍）发生改变的数据，然后更新到 ES。
 
