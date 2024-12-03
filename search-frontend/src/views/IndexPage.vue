@@ -144,4 +144,8 @@ watchEffect(() => {
   } as any;
   loadDataByType();
 });
+
+onMounted(() => {
+  loadData();
+});
 </script>

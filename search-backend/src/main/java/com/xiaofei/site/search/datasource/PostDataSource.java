@@ -1,7 +1,9 @@
 package com.xiaofei.site.search.datasource;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xiaofei.site.search.esdao.PostEsDao;
 import com.xiaofei.site.search.model.dto.post.PostQueryRequest;
+import com.xiaofei.site.search.model.entity.Post;
 import com.xiaofei.site.search.model.vo.PostVO;
 import com.xiaofei.site.search.service.PostService;
 import lombok.extern.slf4j.Slf4j;
@@ -28,9 +30,13 @@ public class PostDataSource implements SearchDataSource<PostVO> {
         postQueryRequest.setSearchText(searchText);
         postQueryRequest.setCurrent(current);
         postQueryRequest.setPageSize(pageSize);
+        HttpServletRequest httpServletRequest = null;
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        HttpServletRequest httpServletRequest = servletRequestAttributes.getRequest();
-        Page<PostVO> postVOPage = postService.listPostVoPage(postQueryRequest, httpServletRequest);
+        if (servletRequestAttributes != null) {
+            httpServletRequest = servletRequestAttributes.getRequest();
+        }
+        Page<Post> postPage = postService.searchFromEs(postQueryRequest);
+        Page<PostVO> postVOPage = postService.getPostVOPage(postPage, httpServletRequest);
         return postVOPage;
     }
 }

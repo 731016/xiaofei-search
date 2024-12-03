@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,10 +72,18 @@ public class EsDaoTest {
     }
 
     @Test
-    public void queryById(){
-        Optional<PostEsDTO> byId = postEsDao.findById(1861062275553792001L);
-        PostEsDTO postEsDTO = byId.get();
-        log.info("数据：->" + postEsDTO);
+    public void query() {
+        List<PostEsDTO> byUserId = postEsDao.findByUserId(1861062275553792001L);
+        log.info("根据userID查询数据：->" + byUserId);
+
+        List<PostEsDTO> postEsDTOList = postEsDao.findByTitle("Linux Java启动脚本");
+        log.info("根据title查询数据：->" + postEsDTOList);
+
+        List<PostEsDTO> postEsDaoByContent = postEsDao.findByContent("proxy_pass");
+        log.info("根据content查询数据：->" + postEsDaoByContent);
+
+        List<PostEsDTO> postEsDaoByTags = postEsDao.findByTags(Arrays.asList("nginx代理配置", "code-server"));
+        log.info("根据tags查询数据：->" + postEsDaoByTags);
     }
 
     @Test
