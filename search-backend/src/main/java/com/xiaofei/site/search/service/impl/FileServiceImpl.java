@@ -120,7 +120,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FilePo> implements 
         if (StringUtils.isNotBlank(searchText)) {
             boolQueryBuilder.should(QueryBuilders.matchQuery("fileName", searchText));
             boolQueryBuilder.should(QueryBuilders.matchQuery("description", searchText));
-            boolQueryBuilder.should(QueryBuilders.matchQuery("content", searchText));
+            boolQueryBuilder.should(QueryBuilders.matchQuery("attachment.content", searchText));
             boolQueryBuilder.minimumShouldMatch(1);
         }
         // 按标题检索
@@ -130,7 +130,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FilePo> implements 
         }
         // 按内容检索
         if (StringUtils.isNotBlank(content)) {
-            boolQueryBuilder.should(QueryBuilders.matchQuery("content", content));
+            boolQueryBuilder.should(QueryBuilders.matchQuery("attachment.content", content));
             boolQueryBuilder.minimumShouldMatch(1);
         }
         // 排序

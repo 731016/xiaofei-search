@@ -23,7 +23,7 @@ public class FileDataSource implements SearchDataSource<FileVo>{
     public Page<FileVo> doSearch(String searchText, int current, int pageSize) {
 
         FileQueryRequest fileQueryRequest = new FileQueryRequest();
-        fileQueryRequest.setFileName(searchText);
+        fileQueryRequest.setSearchText(searchText);
         fileQueryRequest.setCurrent(current);
         fileQueryRequest.setPageSize(pageSize);
         Page<FileVo> fileVoPage = fileService.searchFromEs(fileQueryRequest);

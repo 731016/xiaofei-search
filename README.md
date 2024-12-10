@@ -5060,7 +5060,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FilePo> implements 
         if (StringUtils.isNotBlank(searchText)) {
             boolQueryBuilder.should(QueryBuilders.matchQuery("fileName", searchText));
             boolQueryBuilder.should(QueryBuilders.matchQuery("description", searchText));
-            boolQueryBuilder.should(QueryBuilders.matchQuery("content", searchText));
+            boolQueryBuilder.should(QueryBuilders.matchQuery("attachment.content", searchText));
             boolQueryBuilder.minimumShouldMatch(1);
         }
         // 按标题检索
@@ -5070,7 +5070,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FilePo> implements 
         }
         // 按内容检索
         if (StringUtils.isNotBlank(content)) {
-            boolQueryBuilder.should(QueryBuilders.matchQuery("content", content));
+            boolQueryBuilder.should(QueryBuilders.matchQuery("attachment.content", content));
             boolQueryBuilder.minimumShouldMatch(1);
         }
         // 排序
@@ -5129,10 +5129,12 @@ public class FileDataSource implements SearchDataSource<FileVo>{
     @Resource
     private FileService fileService;
 
-    @Override
     public Page<FileVo> doSearch(String searchText, int current, int pageSize) {
 
-        ...
+        FileQueryRequest fileQueryRequest = new FileQueryRequest();
+        fileQueryRequest.setSearchText(searchText);
+        fileQueryRequest.setCurrent(current);
+        fileQueryRequest.setPageSize(pageSize);
         Page<FileVo> fileVoPage = fileService.searchFromEs(fileQueryRequest);
         return fileVoPage;
     }
@@ -5242,9 +5244,19 @@ public class FilePoToVoUtils {
 
 测试内容分词是否正常
 
+使用分词器分词后，拿分词后的单个分词结果搜索，应该能搜索到结果
+
+```jSO
+POST /file_v3/_analyze
+{
+  "analyzer": "ik_max_word",
+  "text": "xxx"
+}
+```
 
 
-logstash数据同步
+
+##### logstash数据同步
 
 ```conf
 input {
