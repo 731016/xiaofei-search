@@ -26,6 +26,9 @@ public class DataSourceRegistry {
     @Resource
     private UserDataSource userDataSource;
 
+    @Resource
+    private FileDataSource fileDataSource;
+
     private Map<String, SearchDataSource<T>> dataSourceMap;
 
     /**
@@ -37,6 +40,7 @@ public class DataSourceRegistry {
             put(SearchTypeEnum.POST.getValue(), postDataSource);
             put(SearchTypeEnum.USER.getValue(), userDataSource);
             put(SearchTypeEnum.IMAGE.getValue(), imageDataSource);
+            put(SearchTypeEnum.FILE.getValue(), fileDataSource);
         }};
     }
 

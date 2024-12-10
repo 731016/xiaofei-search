@@ -18,7 +18,13 @@
       <a-tab-pane key="user" tab="用户">
         <UserList :userList="searchResultUserList" />
       </a-tab-pane>
+      <a-tab-pane key="file" tab="文件">
+        <FileList :fileList="searchResultFileList" />
+      </a-tab-pane>
     </a-tabs>
+
+    <a-divider>分割线</a-divider>
+    <a-button type="link" @click="toFilePage">上传文件</a-button>
   </div>
 </template>
 
@@ -34,6 +40,7 @@ import {
 import PostList from "@/components/PostList.vue";
 import ImageList from "@/components/ImageList.vue";
 import UserList from "@/components/UserList.vue";
+import FileList from "@/components/FileList.vue";
 import { message } from "ant-design-vue";
 
 const router = useRouter();
@@ -65,6 +72,7 @@ const searchParams = ref(initSearchParams);
 const searchResultPostList = ref([]);
 const searchResultImageList = ref([]);
 const searchResultUserList = ref([]);
+const searchResultFileList = ref([]);
 
 /**
  * 查询
@@ -103,6 +111,7 @@ const loadData = () => {
       searchResultPostList.value = data.postList || [];
       searchResultImageList.value = data.imageList || [];
       searchResultUserList.value = data.userList || [];
+      searchResultFileList.value = data.fileList || [];
     })
     .catch((error: any) => {
       console.error(error);
@@ -124,6 +133,8 @@ const loadDataByType = () => {
         searchResultUserList.value = data.dataList || [];
       } else if (searchType === "image") {
         searchResultImageList.value = data.dataList || [];
+      } else if (searchType === "file") {
+        searchResultFileList.value = data.dataList || [];
       }
     })
     .catch((error: any) => {
@@ -144,6 +155,12 @@ watchEffect(() => {
   } as any;
   loadDataByType();
 });
+
+const toFilePage = () => {
+  router.push({
+    path: "/fileUpLoad",
+  });
+};
 
 onMounted(() => {
   loadData();

@@ -5,6 +5,7 @@ import com.xiaofei.site.search.datasource.*;
 import com.xiaofei.site.search.model.dto.search.SearchQueryRequest;
 import com.xiaofei.site.search.model.entity.Image;
 import com.xiaofei.site.search.model.enums.SearchTypeEnum;
+import com.xiaofei.site.search.model.vo.FileVo;
 import com.xiaofei.site.search.model.vo.PostVO;
 import com.xiaofei.site.search.model.vo.SearchVo;
 import com.xiaofei.site.search.model.vo.UserVO;
@@ -63,7 +64,13 @@ public class SearchFacade {
                 return imagePage;
             }, threadPoolTaskExecutor);
 
-            CompletableFuture.allOf(postTask, userTask, imageTask);
+            CompletableFuture<Page<FileVo>> fileTask = CompletableFuture.supplyAsync(() -> {
+                SearchDataSource fileDataSource = dataSourceRegistry.getDataSourceByType(SearchTypeEnum.FILE.getValue());
+                Page<FileVo> filePage = fileDataSource.doSearch(searchText, current, pageSize);
+                return filePage;
+            }, threadPoolTaskExecutor);
+
+            CompletableFuture.allOf(postTask, userTask, imageTask, fileTask);
 
             try {
                 Page<PostVO> postVOPage = postTask.get();
@@ -72,6 +79,8 @@ public class SearchFacade {
                 searchVo.setUserList(userVOPage.getRecords());
                 Page<Image> imagePage = imageTask.get();
                 searchVo.setImageList(imagePage.getRecords());
+                Page<FileVo> fileVoPage = fileTask.get();
+                searchVo.setFileList(fileVoPage.getRecords());
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }

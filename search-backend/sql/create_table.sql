@@ -65,3 +65,28 @@ create table if not exists post_favour
     index idx_postId (postId),
     index idx_userId (userId)
 ) comment '帖子收藏';
+
+
+CREATE TABLE `file` (
+                        `id` BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+                        `fileName` VARCHAR(255) NOT NULL COMMENT '原始文件名',
+                        `filePath` VARCHAR(255) NOT NULL COMMENT '存储路径（相对路径）',
+                        `fileType` VARCHAR(100) NOT NULL COMMENT '文件类型/MIME类型',
+                        `fileExtension` VARCHAR(10) COMMENT '文件扩展名',
+                        `fileSize` BIGINT NOT NULL COMMENT '文件大小（字节）',
+                        `md5` VARCHAR(32) NOT NULL COMMENT '文件MD5值',
+                        `userId` BIGINT COMMENT '创建用户 id',
+                        `biz` VARCHAR(50) NOT NULL COMMENT '业务',
+                        `isDelete` TINYINT DEFAULT 0 COMMENT '是否删除',
+                        `downloadCount` INT DEFAULT 0 COMMENT '下载次数',
+                        `description` TEXT COMMENT '文件描述',
+                        `createTime` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                        `updateTime` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                        `content` LONGTEXT COMMENT '文件内容'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文件表';
+
+-- 创建索引
+# CREATE INDEX idx_userId ON file(userId);
+# CREATE INDEX idx_biz ON file(biz);
+# CREATE INDEX idx_createTime ON file(createTime);
+# CREATE INDEX idx_md5 ON file(md5);

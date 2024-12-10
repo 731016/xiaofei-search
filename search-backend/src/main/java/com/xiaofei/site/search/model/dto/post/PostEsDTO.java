@@ -20,7 +20,7 @@ import java.util.List;
  * 帖子 ES 包装类
  **/
 // todo 取消注释开启 ES（须先配置 ES）
-@Document(indexName = "post_v2")
+@Document(indexName = "post_v3")
 @Data
 public class PostEsDTO implements Serializable {
 

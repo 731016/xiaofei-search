@@ -28,3 +28,26 @@ export const listImageByPage = (params: any) =>
  */
 export const searchAll = (params: any) =>
   ReqAxios("post", "/search/all", params);
+
+/**
+ * 上传文件
+ * @param formData
+ * @param config
+ */
+export const fileUpload = (formData: FormData, config = {}) =>
+  ReqAxios("file", "/file/upload", formData, config);
+
+/**
+ * 上传文件到ES
+ * @param formData
+ * @param config
+ */
+export const fileUploadEs = (formData: FormData, config = {}) =>
+  ReqAxios("file", "/file/uploadEs", formData, config);
+
+/**
+ * 下载文件
+ * @param params
+ */
+export const download = (params: any) =>
+  ReqAxios("download", "/file/download", params);

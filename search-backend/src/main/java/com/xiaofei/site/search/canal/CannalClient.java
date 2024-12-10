@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-@Component
+//@Component
 public class CannalClient implements InitializingBean {
 
     private final static int BATCH_SIZE = 1000;
