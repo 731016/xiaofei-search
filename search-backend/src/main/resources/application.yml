@@ -130,3 +130,6 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - com.xiaofei.site.search.controller
+csdn:
+  url: https://blog.csdn.net/
+  defaultUser: qq_41666142

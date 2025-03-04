@@ -25,3 +25,6 @@ spring:
     uris: http://localhost:9200
     username: root
     password: 123456
+csdn:
+  url: https://blog.csdn.net/
+  defaultUser: qq_41666142

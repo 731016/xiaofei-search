@@ -35,3 +35,6 @@ knife4j:
     enable: true
     username: root
     password: 123456
+csdn:
+  url: https://blog.csdn.net/
+  defaultUser: qq_41666142
